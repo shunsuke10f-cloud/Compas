@@ -51,6 +51,7 @@ export default async function DiagnosisResultPage({
       <div className="rounded-xl border border-zinc-200 p-5 dark:border-zinc-800">
         <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">この結果の根拠</h2>
         <p className="mt-1 mb-4 text-xs text-zinc-500">
+          職業興味（ホランドのRIASEC理論）と行動特性（ビッグファイブ理論）の2つの観点から、
           6タイプの中で診断結果がどう分かれたか、どの回答が根拠になったかを表示します。
         </p>
         <DiagnosisBreakdown type={type} />

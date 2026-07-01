@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     await supabase.from("diagnoses").insert({
       session_id: sessionId,
       service_type: "job_hunting",
-      type_key: result.primaryType,
+      type_key: result.holland.primaryType,
       answers,
     });
   }
