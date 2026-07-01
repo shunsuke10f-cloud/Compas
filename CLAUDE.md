@@ -11,8 +11,12 @@
 ## 実装済み範囲（就活サービス MVP）
 
 - `/job-hunting` : サービスLP
-- `/job-hunting/diagnosis` : 無料診断（10問・6タイプ、`lib/job-hunting/questions.ts` + `scoring.ts`）
-- `/job-hunting/result/[type]` : 診断結果（強み・弱み・向いている職種文化・避けるべき環境・自己PRの方向性、有料導線）
+- `/job-hunting/diagnosis` : 無料診断。6タイプ x 6設問（2設問ずつ x 3観点=facet）=36設問を
+  5段階リッカート尺度で回答する方式（`lib/job-hunting/questions.ts` + `scoring.ts`）。単一選択の
+  多数決ではなく、各タイプごとに独立した0-100%スコアを算出する。
+- `/job-hunting/result/[type]` : 診断結果（強み・弱み・向いている職種文化・避けるべき環境・自己PRの方向性、
+  有料導線）に加えて `DiagnosisBreakdown` が6タイプのスコア内訳・観点別(facet)スコア・根拠になった
+  具体的な回答文をlocalStorageの診断結果から表示する
 - `/job-hunting/input` : 有料想定の詳細入力（11カテゴリの自由記入、`lib/job-hunting/inputSchema.ts`）
 - `/job-hunting/analysis` : Claude APIで根拠付き自己分析シート・強み・価値観・向いている/避けるべき環境・
   ガクチカ・自己PR・志望動機の軸・履歴書用短文・ES用文章(400字)・面接想定質問を生成し、各項目に
@@ -20,7 +24,13 @@
 
 ## 設計上の決定事項
 
-- **根拠の担保**: Claudeにはtool useで構造化出力させ、各項目に `evidence: {category, quote}[]` を
+- **診断の根拠**: 無料診断は1問1答の多数決ではなく、タイプごとに6つの陳述（3つのfacet x 2問）を
+  1-5のリッカート尺度で評価してもらい、タイプ毎に0-100%の独立したスコアを算出する
+  （`lib/job-hunting/scoring.ts` の `scoreJobHuntingDiagnosis`）。結果画面では
+  (1) 6タイプ全部のスコア内訳、(2) 診断結果タイプの観点別(facet)スコア、(3) 4以上を付けた設問の
+  原文を「根拠になった回答」として表示し、僅差の場合は複合タイプの可能性も明示する。AIを使わず
+  決定論的に計算しているため無料でも高速。
+- **根拠の担保（有料AI分析）**: Claudeにはtool useで構造化出力させ、各項目に `evidence: {category, quote}[]` を
   必須で持たせている（`lib/job-hunting/prompt.ts`）。さらにサーバー側で `lib/job-hunting/evidence.ts`
   が各quoteが実際にユーザー入力内に存在するかを文字列一致で検証し、`verified` フラグをUIに表示する。
   Claudeの自己申告をそのまま信用しない設計。

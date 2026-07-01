@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isJobHuntingTypeKey } from "@/lib/job-hunting/scoring";
 import { JOB_HUNTING_TYPE_CONTENT } from "@/lib/job-hunting/typeContent";
+import DiagnosisBreakdown from "./DiagnosisBreakdown";
 
 export default async function DiagnosisResultPage({
   params,
@@ -46,6 +47,14 @@ export default async function DiagnosisResultPage({
       <Section title="ESで使いやすい自己PRの方向性">
         <p className="text-sm text-zinc-700 dark:text-zinc-300">{content.selfPrDirection}</p>
       </Section>
+
+      <div className="rounded-xl border border-zinc-200 p-5 dark:border-zinc-800">
+        <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">この結果の根拠</h2>
+        <p className="mt-1 mb-4 text-xs text-zinc-500">
+          6タイプの中で診断結果がどう分かれたか、どの回答が根拠になったかを表示します。
+        </p>
+        <DiagnosisBreakdown type={type} />
+      </div>
 
       <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-6 dark:border-indigo-900 dark:bg-indigo-950">
         <h2 className="font-semibold text-zinc-900 dark:text-zinc-50">

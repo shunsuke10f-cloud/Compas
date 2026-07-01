@@ -1,140 +1,88 @@
-import type { JobHuntingTypeKey } from "./types";
+import { JOB_HUNTING_TYPE_KEYS, type JobHuntingTypeKey } from "./types";
 
-export interface DiagnosisOption {
-  label: string;
-  type: JobHuntingTypeKey;
-}
-
-export interface DiagnosisQuestion {
+export interface DiagnosisStatement {
   id: string;
-  prompt: string;
-  options: DiagnosisOption[];
+  type: JobHuntingTypeKey;
+  /** Short facet label within the type (e.g. "原因分析") used to show a finer-grained breakdown. */
+  facet: string;
+  text: string;
 }
 
 /**
- * 10 questions x 6 options (one per type). Each answer scores +1 for its
- * type; the highest-scoring type becomes the diagnosis result. This is a
- * self-understanding axis, not a pass/fail judgment.
+ * 6 statements per type (2 per facet x 3 facets), rated on a 1-5 Likert
+ * scale rather than picked as a single mutually-exclusive choice. This
+ * gives every type an independent, gradual score instead of a single vote,
+ * so the result can show a percentage breakdown across all 6 types plus a
+ * facet-level breakdown and the exact statements that drove the score.
  */
-export const DIAGNOSIS_QUESTIONS: DiagnosisQuestion[] = [
-  {
-    id: "q1",
-    prompt: "グループワークで自然とやっていることが多い役割は？",
-    options: [
-      { label: "情報を整理してまとめる役", type: "logical" },
-      { label: "メンバーの意見や気持ちを引き出す役", type: "empathetic" },
-      { label: "新しいアイデアを提案する役", type: "challenger" },
-      { label: "進行やスケジュールを管理する役", type: "stability" },
-      { label: "自分の担当を黙々と仕上げる役", type: "independent" },
-      { label: "意見が割れたときに間を取り持つ役", type: "harmonizer" },
-    ],
-  },
-  {
-    id: "q2",
-    prompt: "新しいことに取り組むとき、まずどうする？",
-    options: [
-      { label: "情報を集めて筋道を立ててから動く", type: "logical" },
-      { label: "周りの人がどう感じるかを気にしながら進める", type: "empathetic" },
-      { label: "とりあえずやってみて学ぶ", type: "challenger" },
-      { label: "計画を立てて着実に進める", type: "stability" },
-      { label: "自分のやり方で自由に進める", type: "independent" },
-      { label: "関係者の意見をまとめてから進める", type: "harmonizer" },
-    ],
-  },
-  {
-    id: "q3",
-    prompt: "達成感を一番感じるのはどんなとき？",
-    options: [
-      { label: "筋の通った説明ができて納得してもらえたとき", type: "logical" },
-      { label: "相手の力になれたと実感できたとき", type: "empathetic" },
-      { label: "未経験のことに挑戦してやり遂げたとき", type: "challenger" },
-      { label: "コツコツ積み上げた結果が形になったとき", type: "stability" },
-      { label: "自分の裁量でやり切れたとき", type: "independent" },
-      { label: "チーム全体がうまくまとまったとき", type: "harmonizer" },
-    ],
-  },
-  {
-    id: "q4",
-    prompt: "苦手・避けたいと感じるのはどんな状況？",
-    options: [
-      { label: "根拠のないまま物事が決まっていく状況", type: "logical" },
-      { label: "誰かの気持ちを置き去りにして進む状況", type: "empathetic" },
-      { label: "変化がなく同じことの繰り返しが続く状況", type: "challenger" },
-      { label: "計画が頻繁に変わって振り回される状況", type: "stability" },
-      { label: "細かく指示・管理される状況", type: "independent" },
-      { label: "意見がぶつかったまま放置される状況", type: "harmonizer" },
-    ],
-  },
-  {
-    id: "q5",
-    prompt: "友人・周囲からよく言われることに近いのは？",
-    options: [
-      { label: "「説明がわかりやすい」「筋が通っている」", type: "logical" },
-      { label: "「話を聞いてくれる」「気持ちに寄り添ってくれる」", type: "empathetic" },
-      { label: "「行動が早い」「フットワークが軽い」", type: "challenger" },
-      { label: "「真面目」「コツコツ続けられる」", type: "stability" },
-      { label: "「マイペース」「自分の軸がある」", type: "independent" },
-      { label: "「間を取り持つのがうまい」「まとめ役」", type: "harmonizer" },
-    ],
-  },
-  {
-    id: "q6",
-    prompt: "作業をするときに心地よいと感じる進め方は？",
-    options: [
-      { label: "データや情報を整理してから進める", type: "logical" },
-      { label: "人と対話しながら進める", type: "empathetic" },
-      { label: "試行錯誤しながらスピード重視で進める", type: "challenger" },
-      { label: "スケジュール通りに一つずつ進める", type: "stability" },
-      { label: "自分のペースで一人で集中して進める", type: "independent" },
-      { label: "役割分担を決めてチームで進める", type: "harmonizer" },
-    ],
-  },
-  {
-    id: "q7",
-    prompt: "意思決定で一番大事にしていることは？",
-    options: [
-      { label: "客観的な根拠やデータ", type: "logical" },
-      { label: "関わる人がどう感じるか", type: "empathetic" },
-      { label: "やってみないとわからないという感覚", type: "challenger" },
-      { label: "無理のない計画かどうか", type: "stability" },
-      { label: "自分が納得できるかどうか", type: "independent" },
-      { label: "全体のバランスが取れているか", type: "harmonizer" },
-    ],
-  },
-  {
-    id: "q8",
-    prompt: "困った状況になったとき、まずすることは？",
-    options: [
-      { label: "何が原因かを分析する", type: "logical" },
-      { label: "周りに相談して気持ちを整理する", type: "empathetic" },
-      { label: "とにかく別のやり方を試してみる", type: "challenger" },
-      { label: "スケジュールを立て直す", type: "stability" },
-      { label: "一人で解決策を考える", type: "independent" },
-      { label: "関係者を集めて状況をすり合わせる", type: "harmonizer" },
-    ],
-  },
-  {
-    id: "q9",
-    prompt: "理想のチームの雰囲気に近いのは？",
-    options: [
-      { label: "議論が活発で根拠を持って話し合える", type: "logical" },
-      { label: "お互いの状況を気にかけ合える", type: "empathetic" },
-      { label: "新しいことにどんどん挑戦できる", type: "challenger" },
-      { label: "役割と計画が明確で安心して進められる", type: "stability" },
-      { label: "個人の裁量が尊重される", type: "independent" },
-      { label: "全員の意見がフラットに扱われる", type: "harmonizer" },
-    ],
-  },
-  {
-    id: "q10",
-    prompt: "自分の頑張りが一番伝わると思うエピソードのタイプは？",
-    options: [
-      { label: "課題を分析して解決策を導いた話", type: "logical" },
-      { label: "誰かの相談に乗って支えた話", type: "empathetic" },
-      { label: "未経験のことに挑戦した話", type: "challenger" },
-      { label: "地道に継続して結果を出した話", type: "stability" },
-      { label: "一人でやり切った話", type: "independent" },
-      { label: "対立をまとめて成功させた話", type: "harmonizer" },
-    ],
-  },
-];
+const STATEMENTS_BY_TYPE: Record<JobHuntingTypeKey, { facet: string; text: string }[]> = {
+  logical: [
+    { facet: "根拠重視", text: "物事を決めるときは、感覚よりも根拠やデータを重視するほうだ" },
+    { facet: "根拠重視", text: "誰かの意見を聞くとき、まず「なぜそう言えるのか」が気になる" },
+    { facet: "原因分析", text: "課題に直面したら、まず原因を分解して整理したくなる" },
+    { facet: "原因分析", text: "トラブルが起きたときは、感情より先に何が原因かを考える" },
+    { facet: "論理的説明", text: "話をするときは、筋道立てて説明することを意識している" },
+    { facet: "論理的説明", text: "自分の考えを人に伝えるときは、根拠とセットで話すようにしている" },
+  ],
+  empathetic: [
+    { facet: "傾聴", text: "人と話すときは、相手の気持ちを汲み取ることを大事にしている" },
+    { facet: "傾聴", text: "誰かが悩んでいると、まず話をじっくり聞こうとする" },
+    { facet: "状況適応", text: "相手の状況に合わせて、接し方を変えるのが得意だ" },
+    { facet: "状況適応", text: "場の空気や相手の感情の変化に気づきやすい" },
+    { facet: "関係構築", text: "初対面の人とも、比較的早く信頼関係を築ける方だ" },
+    { facet: "関係構築", text: "自分の意見より、その場の人間関係を優先することが多い" },
+  ],
+  challenger: [
+    { facet: "行動力", text: "未経験のことでも、まずやってみようと思うタイプだ" },
+    { facet: "行動力", text: "考えるより先に動いてしまうことが多い" },
+    { facet: "変化適応", text: "変化が多い環境の方が、居心地よく感じる" },
+    { facet: "変化適応", text: "同じことを繰り返す作業より、新しいことに挑戦する方が好きだ" },
+    { facet: "失敗耐性", text: "失敗を恐れて動けなくなることは少ない" },
+    { facet: "失敗耐性", text: "うまくいかなかったときも、切り替えて次に進むのが早い" },
+  ],
+  stability: [
+    { facet: "計画性", text: "物事は計画を立ててから、着実に進めたい" },
+    { facet: "計画性", text: "スケジュール通りに進んでいると安心する" },
+    { facet: "継続力", text: "コツコツ積み重ねることに苦痛を感じない" },
+    { facet: "継続力", text: "一度始めたことは、最後まで続けようとする" },
+    { facet: "慎重さ", text: "突然の方針変更には、あまり気持ちが乗らない" },
+    { facet: "慎重さ", text: "大きな決断をする前は、リスクを慎重に確かめたい" },
+  ],
+  independent: [
+    { facet: "自律性", text: "誰かに細かく管理されるより、自分のペースで進めたい" },
+    { facet: "自律性", text: "頻繁な報告・相談より、まず自分で考えて動きたい" },
+    { facet: "単独集中", text: "一人で集中して取り組む作業が苦にならない" },
+    { facet: "単独集中", text: "チームで進めるより、自分の担当を一人で仕上げる方が落ち着く" },
+    { facet: "裁量志向", text: "自分なりのやり方を大切にしたいと思うことが多い" },
+    { facet: "裁量志向", text: "細かいルールより、自分の判断で進められる方が力を発揮できる" },
+  ],
+  harmonizer: [
+    { facet: "仲裁", text: "グループの中で意見が割れたときは、間に入って調整したくなる" },
+    { facet: "仲裁", text: "対立している人同士の間に立つことが多い" },
+    { facet: "全体最適", text: "チーム全体のバランスを気にしながら動くことが多い" },
+    { facet: "全体最適", text: "自分の意見より、全体がうまくまとまることを優先しがちだ" },
+    { facet: "役割調整", text: "誰かと誰かの意見をすり合わせる役回りになることが多い" },
+    { facet: "役割調整", text: "メンバーの得意・不得意を見て、役割分担を考えることが多い" },
+  ],
+};
+
+function buildStatements(): DiagnosisStatement[] {
+  const statements: DiagnosisStatement[] = [];
+  const perTypeLength = Math.max(
+    ...JOB_HUNTING_TYPE_KEYS.map((type) => STATEMENTS_BY_TYPE[type].length)
+  );
+
+  // Interleave round-robin across types (rather than grouping by type) so
+  // statements for the same type aren't answered back-to-back.
+  for (let i = 0; i < perTypeLength; i++) {
+    for (const type of JOB_HUNTING_TYPE_KEYS) {
+      const item = STATEMENTS_BY_TYPE[type][i];
+      if (item) {
+        statements.push({ id: `${type}-${i + 1}`, type, facet: item.facet, text: item.text });
+      }
+    }
+  }
+  return statements;
+}
+
+export const DIAGNOSIS_STATEMENTS: DiagnosisStatement[] = buildStatements();
